@@ -12,9 +12,18 @@ public class TextureToLightManager : MonoBehaviour
         public bool enableScreeningEffect = false;
         public float screeningThreshold = 0.3f;
         public float screeningStrength = 0.5f;
+        public bool enableSmoothTransition = false;
+        public float transitionSpeed = 5.0f;
+        public bool enableAreaAverage = false;
+        [Range(1, 50)]
+        public int sampleRadius = 5;
         
         [HideInInspector]
         public Color previousColor = Color.black;
+        [HideInInspector]
+        public Color targetColor = Color.black;
+        [HideInInspector]
+        public float transitionProgress = 1.0f;
     }
     
     public List<LightMapping> lightMappings = new List<LightMapping>();
@@ -24,6 +33,12 @@ public class TextureToLightManager : MonoBehaviour
     public float globalScreeningStrength = 0.5f;
     [Range(0.1f, 1.0f)]
     public float globalScreeningThreshold = 0.3f;
+    public bool globalSmoothTransition = false;
+    [Range(1.0f, 10.0f)]
+    public float globalTransitionSpeed = 5.0f;
+    public bool globalAreaAverage = false;
+    [Range(1, 50)]
+    public int globalSampleRadius = 5;
     
     private Texture2D tempTexture;
     private RenderTexture tempRT;
@@ -47,6 +62,7 @@ public class TextureToLightManager : MonoBehaviour
             if (mapping.targetLight != null)
             {
                 mapping.previousColor = mapping.targetLight.color;
+                mapping.targetColor = mapping.targetLight.color;
             }
         }
     }
@@ -60,6 +76,8 @@ public class TextureToLightManager : MonoBehaviour
             ProcessAllLights();
             timeSinceLastUpdate = 0f;
         }
+
+        UpdateSmoothTransitions();
     }
     
     void ProcessAllLights()
@@ -69,7 +87,14 @@ public class TextureToLightManager : MonoBehaviour
             if (mapping.renderTexture == null || mapping.targetLight == null)
                 continue;
                 
-            Color sampledColor = SampleRenderTexture(mapping.renderTexture, mapping.samplePosition);
+            bool useAreaAverage = mapping.enableAreaAverage || globalAreaAverage;
+            int sampleRadius = globalAreaAverage ? globalSampleRadius : mapping.sampleRadius;
+            Color sampledColor = SampleRenderTexture(
+                mapping.renderTexture, 
+                mapping.samplePosition, 
+                useAreaAverage, 
+                sampleRadius
+            );
 
             bool useScreening = mapping.enableScreeningEffect || globalScreeningEffect;
             if (useScreening)
@@ -80,10 +105,40 @@ public class TextureToLightManager : MonoBehaviour
                 sampledColor = ApplyScreeningEffect(sampledColor, mapping.previousColor, threshold, strength);
             }
             
-            mapping.targetLight.color = sampledColor;
-            mapping.targetLight.enabled = sampledColor.grayscale > 0.01f;
-
-            mapping.previousColor = sampledColor;
+            bool useSmoothTransition = mapping.enableSmoothTransition || globalSmoothTransition;
+            if (useSmoothTransition)
+            {
+                mapping.targetColor = sampledColor;
+                mapping.transitionProgress = 0.0f;
+            }
+            else
+            {
+                mapping.targetLight.color = sampledColor;
+                mapping.targetLight.enabled = sampledColor.grayscale > 0.01f;
+                mapping.previousColor = sampledColor;
+            }
+        }
+    }
+    
+    void UpdateSmoothTransitions()
+    {
+        foreach (var mapping in lightMappings)
+        {
+            bool useSmoothTransition = mapping.enableSmoothTransition || globalSmoothTransition;
+            if (useSmoothTransition && mapping.transitionProgress < 1.0f && mapping.targetLight != null)
+            {
+                float speed = globalSmoothTransition ? globalTransitionSpeed : mapping.transitionSpeed;
+                mapping.transitionProgress += Time.deltaTime * speed;
+                if (mapping.transitionProgress > 1.0f)
+                    mapping.transitionProgress = 1.0f;
+                Color currentColor = Color.Lerp(mapping.previousColor, mapping.targetColor, mapping.transitionProgress);
+                mapping.targetLight.color = currentColor;
+                mapping.targetLight.enabled = currentColor.grayscale > 0.01f;
+                if (mapping.transitionProgress >= 1.0f)
+                {
+                    mapping.previousColor = mapping.targetColor;
+                }
+            }
         }
     }
     
@@ -122,22 +177,84 @@ public class TextureToLightManager : MonoBehaviour
         return newColor;
     }
     
-    Color SampleRenderTexture(RenderTexture rt, Vector2 normalizedPosition)
+    Color SampleRenderTexture(RenderTexture rt, Vector2 normalizedPosition, bool useAreaAverage = false, int radius = 1)
     {
-        int x = Mathf.FloorToInt(normalizedPosition.x * rt.width);
-        int y = Mathf.FloorToInt(normalizedPosition.y * rt.height);
+        int centerX = Mathf.FloorToInt(normalizedPosition.x * rt.width);
+        int centerY = Mathf.FloorToInt(normalizedPosition.y * rt.height);
         
-        tempRT.DiscardContents();
-        Graphics.CopyTexture(rt, 0, 0, x, y, 1, 1, tempRT, 0, 0, 0, 0);
-        
-        RenderTexture.active = tempRT;
-        tempTexture.ReadPixels(new Rect(0, 0, 1, 1), 0, 0);
-        tempTexture.Apply();
-        
-        Color sampledColor = tempTexture.GetPixel(0, 0);
-        RenderTexture.active = null;
-        
-        return sampledColor;
+        if (!useAreaAverage || radius <= 1)
+        {
+            // Sample single pixel
+            tempRT.DiscardContents();
+            Graphics.CopyTexture(rt, 0, 0, centerX, centerY, 1, 1, tempRT, 0, 0, 0, 0);
+            
+            RenderTexture.active = tempRT;
+            tempTexture.ReadPixels(new Rect(0, 0, 1, 1), 0, 0);
+            tempTexture.Apply();
+            
+            Color sampledColor = tempTexture.GetPixel(0, 0);
+            RenderTexture.active = null;
+            
+            return sampledColor;
+        }
+        else
+        {
+            // Sample area and calculate average
+            int size = radius * 2 + 1;
+            int startX = Mathf.Max(0, centerX - radius);
+            int startY = Mathf.Max(0, centerY - radius);
+            int width = Mathf.Min(size, rt.width - startX);
+            int height = Mathf.Min(size, rt.height - startY);
+            
+            if (tempRT.width < width || tempRT.height < height)
+            {
+                tempRT.Release();
+                tempRT = new RenderTexture(width, height, 0, rt.format);
+            }
+            
+            tempRT.DiscardContents();
+            Graphics.CopyTexture(rt, 0, 0, startX, startY, width, height, tempRT, 0, 0, 0, 0);
+            
+            RenderTexture.active = tempRT;
+            
+            if (tempTexture.width != width || tempTexture.height != height)
+            {
+                Destroy(tempTexture);
+                tempTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+            }
+            
+            tempTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            tempTexture.Apply();
+            
+            Color averageColor = Color.black;
+            int sampleCount = 0;
+            
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    float distX = x - (centerX - startX);
+                    float distY = y - (centerY - startY);
+                    float distSqr = distX * distX + distY * distY;
+                    
+                    if (distSqr <= radius * radius)
+                    {
+                        Color pixelColor = tempTexture.GetPixel(x, y);
+                        averageColor += pixelColor;
+                        sampleCount++;
+                    }
+                }
+            }
+            
+            RenderTexture.active = null;
+            
+            if (sampleCount > 0)
+            {
+                averageColor /= sampleCount;
+            }
+            
+            return averageColor;
+        }
     }
     
     void OnDestroy()

@@ -84,6 +84,7 @@ public class TextureToLightManagerEditor : Editor
             Repaint();
         }
         
+        // Draw the sample point
         float dotSize = 10f;
         Rect dotRect = new Rect(
             previewRect.x + previewRect.width * selectedMapping.samplePosition.x - dotSize/2,
@@ -94,6 +95,27 @@ public class TextureToLightManagerEditor : Editor
         
         Color dotColor = selectedMapping.targetLight ? selectedMapping.targetLight.color : Color.red;
         EditorGUI.DrawRect(dotRect, dotColor);
+
+        bool useAreaAverage = selectedMapping.enableAreaAverage || script.globalAreaAverage;
+        if (useAreaAverage)
+        {
+            int radius = script.globalAreaAverage ? script.globalSampleRadius : selectedMapping.sampleRadius;
+            
+            float pixelSize = previewRect.width / selectedMapping.renderTexture.width;
+            float radiusSize = radius * pixelSize;
+
+            Handles.color = new Color(dotColor.r, dotColor.g, dotColor.b, 0.3f);
+            Vector3 center = new Vector3(
+                previewRect.x + previewRect.width * selectedMapping.samplePosition.x,
+                previewRect.y + previewRect.height * (1.0f - selectedMapping.samplePosition.y),
+                0
+            );
+            Handles.DrawWireDisc(center, Vector3.forward, radiusSize);
+            
+            GUI.color = Color.white;
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField($"Sample Radius: {radius} pixels", EditorStyles.boldLabel);
+        }
         
         if (selectedMapping.targetLight != null)
         {

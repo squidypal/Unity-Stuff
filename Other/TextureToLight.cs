@@ -39,7 +39,6 @@ public class TextureToLight : MonoBehaviour
 
     void OnDestroy()
     {
-        // Clean up resources
         if (tempTexture != null)
             Destroy(tempTexture);
 

@@ -1,5 +1,6 @@
 # Editor Helper
 
+### Video of light thing:
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/S4rxrnkcLYM/0.jpg)](https://www.youtube.com/watch?v=S4rxrnkcLYM)
 
 Stuff: 

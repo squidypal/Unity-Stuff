@@ -159,7 +159,6 @@ public class TextureToLightManager : MonoBehaviour
             else
             {
                 mapping.targetLight.color = sampledColor;
-                mapping.targetLight.enabled = sampledColor.grayscale > 0.01f;
                 mapping.previousColor = sampledColor;
             }
         }
@@ -180,7 +179,6 @@ public class TextureToLightManager : MonoBehaviour
                     mapping.transitionProgress = 1.0f;
                 Color currentColor = Color.Lerp(mapping.previousColor, mapping.targetColor, mapping.transitionProgress);
                 mapping.targetLight.color = currentColor;
-                mapping.targetLight.enabled = currentColor.grayscale > 0.01f;
                 if (mapping.transitionProgress >= 1.0f)
                 {
                     mapping.previousColor = mapping.targetColor;

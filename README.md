@@ -1,6 +1,6 @@
 # Editor Helper
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/S4rxrnkcLYM/0.jpg)]([https://www.youtube.com/watch?v=S4rxrnkcLYM](https://youtu.be/S4rxrnkcLYM))
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/S4rxrnkcLYM/0.jpg)](https://www.youtube.com/watch?v=S4rxrnkcLYM)
 
 Stuff: 
 - Reactive lighting to render textures

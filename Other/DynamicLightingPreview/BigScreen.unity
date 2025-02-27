@@ -540,7 +540,7 @@ MonoBehaviour:
     transitionProgress: 0.11465041
   - renderTexture: {fileID: 8400000, guid: 4c3da8b911e736641912e5aab28fd654, type: 2}
     targetLight: {fileID: 1355342869}
-    samplePosition: {x: 0.19354838, y: 0.07046071}
+    samplePosition: {x: 0.18586789, y: 0.05691057}
     enableScreeningEffect: 0
     screeningThreshold: 0.3
     screeningStrength: 0.5
@@ -1669,7 +1669,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 719744699}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: e406d277ada7d1e43b1b8aa122611d25, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: 8a490fe11e38dac4e8d96dbb3d73150c, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}

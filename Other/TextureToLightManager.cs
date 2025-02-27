@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class TextureToLightManager : MonoBehaviour
 {
@@ -39,10 +40,12 @@ public class TextureToLightManager : MonoBehaviour
     public bool globalAreaAverage = false;
     [Range(1, 50)]
     public int globalSampleRadius = 5;
+    public int batchSize = 3;
     
     private Texture2D tempTexture;
     private RenderTexture tempRT;
     private float timeSinceLastUpdate = 0f;
+    private int currentBatchIndex = 0;
     
     void Start()
     {
@@ -56,7 +59,6 @@ public class TextureToLightManager : MonoBehaviour
             tempRT = new RenderTexture(1, 1, 0, RenderTextureFormat.ARGB32);
         }
         
-        // Initialize previous colors
         foreach (var mapping in lightMappings)
         {
             if (mapping.targetLight != null)
@@ -73,28 +75,71 @@ public class TextureToLightManager : MonoBehaviour
         
         if (timeSinceLastUpdate >= updateInterval)
         {
-            ProcessAllLights();
+            ProcessLightsBatch();
             timeSinceLastUpdate = 0f;
         }
 
         UpdateSmoothTransitions();
     }
     
-    void ProcessAllLights()
+    void ProcessLightsBatch()
     {
-        foreach (var mapping in lightMappings)
+        if (lightMappings.Count == 0) return;
+        
+        int totalMappings = lightMappings.Count;
+        int actualBatchSize = Mathf.Min(batchSize, totalMappings);
+        
+        Dictionary<RenderTexture, Dictionary<Vector2, Color>> rtSampleCache = new Dictionary<RenderTexture, Dictionary<Vector2, Color>>();
+        Dictionary<RenderTexture, Dictionary<Vector2, Dictionary<int, Color>>> rtAreaSampleCache = new Dictionary<RenderTexture, Dictionary<Vector2, Dictionary<int, Color>>>();
+        
+        for (int i = 0; i < actualBatchSize; i++)
         {
+            int mappingIndex = (currentBatchIndex + i) % totalMappings;
+            var mapping = lightMappings[mappingIndex];
+            
             if (mapping.renderTexture == null || mapping.targetLight == null)
                 continue;
                 
             bool useAreaAverage = mapping.enableAreaAverage || globalAreaAverage;
             int sampleRadius = globalAreaAverage ? globalSampleRadius : mapping.sampleRadius;
-            Color sampledColor = SampleRenderTexture(
-                mapping.renderTexture, 
-                mapping.samplePosition, 
-                useAreaAverage, 
-                sampleRadius
-            );
+            
+            Color sampledColor;
+            
+            if (useAreaAverage)
+            {
+                if (!rtAreaSampleCache.ContainsKey(mapping.renderTexture))
+                {
+                    rtAreaSampleCache[mapping.renderTexture] = new Dictionary<Vector2, Dictionary<int, Color>>();
+                }
+                
+                if (!rtAreaSampleCache[mapping.renderTexture].ContainsKey(mapping.samplePosition))
+                {
+                    rtAreaSampleCache[mapping.renderTexture][mapping.samplePosition] = new Dictionary<int, Color>();
+                }
+                
+                if (!rtAreaSampleCache[mapping.renderTexture][mapping.samplePosition].ContainsKey(sampleRadius))
+                {
+                    rtAreaSampleCache[mapping.renderTexture][mapping.samplePosition][sampleRadius] = 
+                        SampleRenderTexture(mapping.renderTexture, mapping.samplePosition, true, sampleRadius);
+                }
+                
+                sampledColor = rtAreaSampleCache[mapping.renderTexture][mapping.samplePosition][sampleRadius];
+            }
+            else
+            {
+                if (!rtSampleCache.ContainsKey(mapping.renderTexture))
+                {
+                    rtSampleCache[mapping.renderTexture] = new Dictionary<Vector2, Color>();
+                }
+                
+                if (!rtSampleCache[mapping.renderTexture].ContainsKey(mapping.samplePosition))
+                {
+                    rtSampleCache[mapping.renderTexture][mapping.samplePosition] = 
+                        SampleRenderTexture(mapping.renderTexture, mapping.samplePosition, false);
+                }
+                
+                sampledColor = rtSampleCache[mapping.renderTexture][mapping.samplePosition];
+            }
 
             bool useScreening = mapping.enableScreeningEffect || globalScreeningEffect;
             if (useScreening)
@@ -118,6 +163,8 @@ public class TextureToLightManager : MonoBehaviour
                 mapping.previousColor = sampledColor;
             }
         }
+        
+        currentBatchIndex = (currentBatchIndex + actualBatchSize) % totalMappings;
     }
     
     void UpdateSmoothTransitions()
@@ -184,7 +231,6 @@ public class TextureToLightManager : MonoBehaviour
         
         if (!useAreaAverage || radius <= 1)
         {
-            // Sample single pixel
             tempRT.DiscardContents();
             Graphics.CopyTexture(rt, 0, 0, centerX, centerY, 1, 1, tempRT, 0, 0, 0, 0);
             
@@ -199,7 +245,6 @@ public class TextureToLightManager : MonoBehaviour
         }
         else
         {
-            // Sample area and calculate average
             int size = radius * 2 + 1;
             int startX = Mathf.Max(0, centerX - radius);
             int startY = Mathf.Max(0, centerY - radius);

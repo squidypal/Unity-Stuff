@@ -1299,10 +1299,11 @@ MonoBehaviour:
   globalScreeningEffect: 1
   globalScreeningStrength: 0.5
   globalScreeningThreshold: 0.3
-  globalSmoothTransition: 0
-  globalTransitionSpeed: 10
+  globalSmoothTransition: 1
+  globalTransitionSpeed: 5
   globalAreaAverage: 0
   globalSampleRadius: 5
+  batchSize: 3
 --- !u!1 &355004462
 GameObject:
   m_ObjectHideFlags: 0
@@ -2118,6 +2119,7 @@ MonoBehaviour:
   globalTransitionSpeed: 10
   globalAreaAverage: 0
   globalSampleRadius: 5
+  batchSize: 1
 --- !u!1 &529775139
 GameObject:
   m_ObjectHideFlags: 0
@@ -2923,6 +2925,7 @@ MonoBehaviour:
   globalTransitionSpeed: 10
   globalAreaAverage: 1
   globalSampleRadius: 50
+  batchSize: 4
 --- !u!1 &642000624
 GameObject:
   m_ObjectHideFlags: 0
@@ -3106,7 +3109,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 660267736}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 8a490fe11e38dac4e8d96dbb3d73150c, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: e406d277ada7d1e43b1b8aa122611d25, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -3978,6 +3981,7 @@ MonoBehaviour:
   globalTransitionSpeed: 10
   globalAreaAverage: 1
   globalSampleRadius: 50
+  batchSize: 1
 --- !u!1 &878789130
 GameObject:
   m_ObjectHideFlags: 0
@@ -6209,7 +6213,7 @@ Transform:
   m_GameObject: {fileID: 1246917251}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.687, y: 0.414, z: -0.754}
+  m_LocalPosition: {x: -0.687, y: -0.177, z: -0.743}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7742,7 +7746,7 @@ Transform:
   m_GameObject: {fileID: 1618504569}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.687, y: 0.414, z: 0.557}
+  m_LocalPosition: {x: -0.687, y: 0.931, z: 0.583}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9288,7 +9292,7 @@ MonoBehaviour:
     transitionProgress: 0.11465041
   - renderTexture: {fileID: 8400000, guid: 4c3da8b911e736641912e5aab28fd654, type: 2}
     targetLight: {fileID: 1618504572}
-    samplePosition: {x: 0.16436252, y: 0.45257452}
+    samplePosition: {x: 0.19662058, y: 0.7344173}
     enableScreeningEffect: 0
     screeningThreshold: 0.3
     screeningStrength: 0.5
@@ -9301,7 +9305,7 @@ MonoBehaviour:
     transitionProgress: 0.11465041
   - renderTexture: {fileID: 8400000, guid: 4c3da8b911e736641912e5aab28fd654, type: 2}
     targetLight: {fileID: 1246917254}
-    samplePosition: {x: 0.85099846, y: 0.48238483}
+    samplePosition: {x: 0.8356375, y: 0.24390244}
     enableScreeningEffect: 0
     screeningThreshold: 0.3
     screeningStrength: 0.5
@@ -9312,7 +9316,7 @@ MonoBehaviour:
     previousColor: {r: 0.016002513, g: 0.012683336, b: 0.007585619, a: 1.0001274}
     targetColor: {r: 1, g: 1, b: 1, a: 1}
     transitionProgress: 0.11465041
-  updateInterval: 0.001
+  updateInterval: 0.01
   globalScreeningEffect: 1
   globalScreeningStrength: 0.5
   globalScreeningThreshold: 0.3
@@ -9320,6 +9324,7 @@ MonoBehaviour:
   globalTransitionSpeed: 10
   globalAreaAverage: 1
   globalSampleRadius: 50
+  batchSize: 7
 --- !u!1 &1894079587
 GameObject:
   m_ObjectHideFlags: 0

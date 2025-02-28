@@ -2392,7 +2392,7 @@ MonoBehaviour:
     previousColor: {r: 0.045716688, g: 0.07663392, b: 0.058607794, a: 1.0001274}
     targetColor: {r: 0.50292826, g: 0.4782957, b: 0.4571278, a: 1.0001274}
     transitionProgress: 0.11465041
-  updateInterval: 0.15
+  updateInterval: 0.1
   globalScreeningEffect: 1
   globalScreeningStrength: 0.5
   globalScreeningThreshold: 0.3
@@ -3546,7 +3546,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 3 Lights, 0.15 Update Interval
+  m_text: 3 Lights, 0.1 Update Interval
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3682,7 +3682,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1 Light, 0.5 Update Interval
+  m_text: 1 Light, 0.1 Update Interval
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3828,7 +3828,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Intensity: 5
   m_Range: 3
   m_SpotAngle: 179
   m_InnerSpotAngle: 84.24394
@@ -4367,12 +4367,12 @@ MonoBehaviour:
     previousColor: {r: 0.1454014, g: 0.11724525, b: 0.10988358, a: 1.0001274}
     targetColor: {r: 0.1454014, g: 0.11724525, b: 0.10988358, a: 1.0001274}
     transitionProgress: 1
-  updateInterval: 0.5
+  updateInterval: 0.1
   globalScreeningEffect: 1
   globalScreeningStrength: 0.5
   globalScreeningThreshold: 0.3
   globalSmoothTransition: 1
-  globalTransitionSpeed: 7.29
+  globalTransitionSpeed: 10
   globalAreaAverage: 1
   globalSampleRadius: 50
   batchSize: 1

@@ -16,7 +16,7 @@ public class TextureToLightManager : MonoBehaviour
         public bool enableSmoothTransition = false;
         public float transitionSpeed = 5.0f;
         public bool enableAreaAverage = false;
-        [Range(1, 50)]
+        [Range(1, 1000)]
         public int sampleRadius = 5;
         
         [HideInInspector]
@@ -38,7 +38,7 @@ public class TextureToLightManager : MonoBehaviour
     [Range(1.0f, 10.0f)]
     public float globalTransitionSpeed = 5.0f;
     public bool globalAreaAverage = false;
-    [Range(1, 50)]
+    [Range(1, 1000)]
     public int globalSampleRadius = 5;
     public int batchSize = 3;
     

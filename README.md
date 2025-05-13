@@ -1,7 +1,7 @@
 # Unity Stuff
 Previously Editor Helper
 
-Please not that as of May 12th 2025 the Adapative Screen Lighting scripts will no longer be updated.
+# Please not that as of May 12th 2025 the Adapative Screen Lighting scripts will no longer be updated.
 The asset has moved to the asset store.
 
 ### Video of light thing:
